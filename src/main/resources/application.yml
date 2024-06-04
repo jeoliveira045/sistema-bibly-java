@@ -1,0 +1,12 @@
+server:
+  error:
+    include-stacktrace: always
+spring:
+  application:
+    name: sistema-bibly-java
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/bibly
+    username: bibly
+    password: bibly
+
