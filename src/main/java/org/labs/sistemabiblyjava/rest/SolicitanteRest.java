@@ -3,6 +3,8 @@ package org.labs.sistemabiblyjava.rest;
 import lombok.AllArgsConstructor;
 import org.labs.sistemabiblyjava.entities.Solicitante;
 import org.labs.sistemabiblyjava.repository.SolicitanteRepository;
+import org.labs.sistemabiblyjava.repository.fluentquery.SolicitantesFluentQuery;
+import org.labs.sistemabiblyjava.repository.specification.SolicitanteSpecification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,11 @@ public class SolicitanteRest {
     @GetMapping
     public ResponseEntity<List<Solicitante>> findAll(){
         return ResponseEntity.ok(repository.findAll());
+    }
+
+    @GetMapping("/fq={first_name}")
+    public ResponseEntity<List<Solicitante>> findAllByFirstName(@PathVariable String first_name){
+        return ResponseEntity.ok(repository.findBy(SolicitanteSpecification.firstNameFirstLetter(first_name), SolicitantesFluentQuery.allSolicitantes()));
     }
 
     @PostMapping
