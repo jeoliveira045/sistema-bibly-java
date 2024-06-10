@@ -3,11 +3,17 @@ package org.labs.sistemabiblyjava.entities.vw;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.hibernate.annotations.Subselect;
 
 @Entity
+@Table(name = "livros_disponiveis")
+@Data
 @Subselect("""
     SELECT
+        ID,
         NOME,
         ISBN,
         CONTAR_LIVROS_DISPONIVEIS
