@@ -1,6 +1,7 @@
 package org.labs.sistemabiblyjava.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
 import org.labs.sistemabiblyjava.entities.vw.LivroDisponivelView;
 import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 @AllArgsConstructor
+@Slf4j
 public class EmprestimoService {
 
     private LivroDisponiveisViewRepository livroDisponiveisViewRepository;
@@ -23,15 +25,21 @@ public class EmprestimoService {
         return resource;
     }
 
+    /**
+     * Verifica se o livro selecionado está vazio na biblioteca.
+     * @param resource
+     */
     public void validateLivroIsNotEmprestado(Emprestimo resource){
 
-        var livro = livroRepository.findById(resource.getLivro().getId());
+        var livroSolicitado = livroRepository.findById(resource.getLivro().getId()).orElseThrow(() -> new RuntimeException("Livro solicitado não encontrado"));
 
-        var livroSolicitadoNaoPresenteEmCatalogo = livroDisponiveisViewRepository.findByIsbn(livro.get().getIsbn()).stream().anyMatch(livroDisponivelView -> livroDisponivelView.getQuantiaLivrosDisponiveis() == 0);
+        var livroSolicitadoNaoDisponivelParaEmprestimo = livroDisponiveisViewRepository
+                .findByIsbn(livroSolicitado.getIsbn())
+                .stream()
+                .anyMatch(livroDisponivelView -> livroDisponivelView.getQuantiaLivrosDisponiveis() == 0);
 
-        if(livroSolicitadoNaoPresenteEmCatalogo){
+        if(livroSolicitadoNaoDisponivelParaEmprestimo){
             throw new RuntimeException("Livro indisponível para emprestimo");
         }
-
     }
 }

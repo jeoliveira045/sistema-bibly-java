@@ -14,8 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class EmprestimoRest {
     private EmprestimoRepository repository;
-    private final EmprestimoService service;
-
+    private final EmprestimoService emprestimoService;
 
     @GetMapping
     public ResponseEntity<List<Emprestimo>> findAll(){
@@ -24,7 +23,7 @@ public class EmprestimoRest {
 
     @PostMapping
     public ResponseEntity<Emprestimo> insert(@RequestBody Emprestimo resource){
-        return ResponseEntity.ok(service.exec(resource));
+        return ResponseEntity.ok(emprestimoService.exec(resource));
     }
 
     @GetMapping("/{id}")
@@ -35,7 +34,7 @@ public class EmprestimoRest {
     @PutMapping("/{id}")
     public ResponseEntity<Emprestimo> update(@PathVariable Long id,@RequestBody Emprestimo resource){
         resource.setId(id);
-        return ResponseEntity.ok(repository.save(resource));
+        return ResponseEntity.ok(emprestimoService.exec(resource));
     }
 
     @DeleteMapping("/{id}")
