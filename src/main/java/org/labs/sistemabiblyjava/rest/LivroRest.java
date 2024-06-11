@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.labs.sistemabiblyjava.repository.specification.LivroSpecification.*;
+
 @RequestMapping("/livro")
 @RestController
 @AllArgsConstructor
@@ -18,6 +20,11 @@ public class LivroRest {
     @GetMapping
     public ResponseEntity<List<Livro>> findAll(){
         return ResponseEntity.ok(repository.findAll());
+    }
+
+    @GetMapping("/por-genero/{genero}")
+    public ResponseEntity<List<Livro>> findAllByGenero(@PathVariable String genero){
+        return ResponseEntity.ok(repository.findAll(byGenero(genero)));
     }
 
     @PostMapping
