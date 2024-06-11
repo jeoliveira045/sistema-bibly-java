@@ -9,4 +9,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/bibly
     username: bibly
     password: bibly
+  jpa:
+    hibernate:
+      ddl-auto: update
+
 

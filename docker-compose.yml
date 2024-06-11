@@ -1,0 +1,9 @@
+services:
+  bibly-postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: bibly
+      POSTGRES_PASSWORD: bibly
+      POSTGRES_DB: bibly
+    ports:
+      - 5432:5432
