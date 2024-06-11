@@ -10,19 +10,18 @@ import org.labs.sistemabiblyjava.entities.databind.SolicitanteDatabind;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "emprestimos")
+@Table(name = "solicitacoes")
 @Data
-public class Emprestimo {
+public class Solicitacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "dtEmprestimoEm")
-    private LocalDate dtEmprestimoEm;
-    @Column(name = "prazoDevolucaoEm")
-    private LocalDate prazoDevolucaoEm;
-    @Column(name = "dataDevolucao")
-    private LocalDate dataDevolucao;
+    @Column(name = "data_solicitacao")
+    private LocalDate dataSolicitacao;
+    @Column(name = "dt_emprestimo_em")
+    private LocalDate dataEmprestimoEm;
+    @Column(name = "prazo_devolucao")
+    private LocalDate prazoDevolucao;
 
     @ManyToOne
     @JsonSerialize(using = SolicitanteDatabind.IdSerializer.class)
@@ -33,4 +32,5 @@ public class Emprestimo {
     @JsonSerialize(using = LivroDatabind.IdSerializer.class)
     @JsonDeserialize(using = LivroDatabind.IdDeserializer.class)
     private Livro livro;
+
 }

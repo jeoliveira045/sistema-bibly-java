@@ -1,0 +1,42 @@
+@startuml
+
+skinparam linetype ortho
+top to bottom direction
+
+    class Livro{
+        - id: Long
+        - nome: String
+        - ISBN: String
+        - genero: String
+        - autor: String
+    }
+
+    class Emprestimo{
+        - id: Long
+        - dataEmprestimoEm: DateTime
+        - prazoDevolucao: DateTime
+        - dataDevolucao: DateTime
+    }
+
+    class Solicitante{
+        - id: Long
+        - nome: String
+        - sobrenome: String
+        - dataNascimento: Date
+        - genero: String
+        - endereco; String
+        - CPF: string
+    }
+
+    class Solicitacao{
+        - id: Long
+        - dataSolicitacao: LocalDate
+        - dataEmprestimoEm: LocalDate
+        - prazoDevolucao: LocalDate
+    }
+
+    Emprestimo "0..*"--> "1" Livro
+    Emprestimo "0..*" --> "1" Solicitante
+    Solicitacao "0..*" --> "1" Solicitante
+    Solicitacao "0..*" --> "1" Livro
+@enduml
