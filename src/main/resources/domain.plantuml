@@ -35,8 +35,41 @@ top to bottom direction
         - prazoDevolucao: LocalDate
     }
 
+    class SituacaoSolicitacao<<Setting>>{
+        - id: Long
+        - descricao: String
+    }
+
+'    class SituacaoLivro<<Setting>>{
+'
+'        - id: Long
+'        - descricao: String
+'    }
+'
+'    class SituacaoSolicitante<<Setting>>{
+'        - id: Long
+'        - descricao: String
+'    }
+    class SituacaoEmprestimo<<Setting>>{
+        - id: Long
+        - descricao: String
+    }
+
+
+    note left of SituacaoSolicitacao : EM ESPERA/ATENDIDA/RECUSADA
+'    note right of SituacaoSolicitante : SEM PENDENCIA/PRECISA DEVOLVER
+'    note left of SituacaoLivro : EMPRESTADO/EM ESTOQUE
+    note right of SituacaoEmprestimo: ENTREGE NO PRAZO/ENTREGE FORA DO PRAZO
+
+
     Emprestimo "0..*"--> "1" Livro
     Emprestimo "0..*" --> "1" Solicitante
     Solicitacao "0..*" --> "1" Solicitante
     Solicitacao "0..*" --> "1" Livro
+    Solicitacao  "0..*" --> "1" SituacaoSolicitacao
+'    Solicitante "0..*" --> "1" SituacaoSolicitante
+'    Livro "0..*" --> "1" SituacaoLivro
+    Emprestimo "0..*" --> "1" SituacaoEmprestimo
+
+
 @enduml

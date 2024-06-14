@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.labs.sistemabiblyjava.entities.databind.LivroDatabind;
+import org.labs.sistemabiblyjava.entities.databind.SituacaoSolicitacaoDatabind;
 import org.labs.sistemabiblyjava.entities.databind.SolicitanteDatabind;
 
 import java.time.LocalDate;
@@ -32,5 +33,10 @@ public class Solicitacao {
     @JsonSerialize(using = LivroDatabind.IdSerializer.class)
     @JsonDeserialize(using = LivroDatabind.IdDeserializer.class)
     private Livro livro;
+
+    @ManyToOne
+    @JsonSerialize(using = SituacaoSolicitacaoDatabind.IdSerializer.class)
+    @JsonDeserialize(using = SituacaoSolicitacaoDatabind.IdDeserializer.class)
+    private SituacaoSolicitacao situacaoSolicitacao;
 
 }

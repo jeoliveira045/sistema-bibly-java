@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.labs.sistemabiblyjava.entities.databind.LivroDatabind;
+import org.labs.sistemabiblyjava.entities.databind.SituacaoEmprestimoDatabind;
 import org.labs.sistemabiblyjava.entities.databind.SolicitanteDatabind;
 
 import java.time.LocalDate;
@@ -33,4 +34,9 @@ public class Emprestimo {
     @JsonSerialize(using = LivroDatabind.IdSerializer.class)
     @JsonDeserialize(using = LivroDatabind.IdDeserializer.class)
     private Livro livro;
+
+    @ManyToOne
+    @JsonSerialize(using = SituacaoEmprestimoDatabind.IdSerializer.class)
+    @JsonDeserialize(using = SituacaoEmprestimoDatabind.IdDeserializer.class)
+    private SituacaoEmprestimo situacaoEmprestimo;
 }
