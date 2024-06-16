@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long>, JpaSpecificationExecutor<Solicitacao> {
-    List<Solicitacao> findAllByLivro_Id(Long id);
+    List<Solicitacao> findAllByLivro_IdAndSituacaoSolicitacao_Descricao(Long id, String descricao);
+
+
 }
