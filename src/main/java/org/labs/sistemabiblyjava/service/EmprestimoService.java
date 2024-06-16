@@ -38,10 +38,9 @@ public class EmprestimoService {
      * @param resource
      */
     public void validateLivroDisponivel(Emprestimo resource){
-        var livroSolicitado = livroRepository.findById(resource.getLivro().getId()).orElseThrow(() -> new RuntimeException("Livro solicitado não encontrado"));
 
         var livroSolicitadoNaoDisponivelParaEmprestimo = livroDisponiveisViewRepository
-                .findByIsbn(livroSolicitado.getIsbn())
+                .findById(resource.getLivro().getId())
                 .stream()
                 .anyMatch(livroDisponivelView -> livroDisponivelView.getQuantiaLivrosDisponiveis() == 0);
 
@@ -51,28 +50,32 @@ public class EmprestimoService {
     }
 
     /**
-     * Verifica se o solicitante do emprestimo é o mesmo da solicitacao mais antiga que não foi atendida
+     * Verifica se o solicitante do emprestimo é o mesmo da solicitacao mais antiga que está em espera
      * @param resource
      */
 
     public void validateSolicitacaoMaisAntiga(Emprestimo resource){
         var solicitacaoMaisAntiga = solicitacaoRepository
-                .findAllByLivro_IdAndSituacaoSolicitacao_Descricao(resource.getLivro().getId(), "NÃO ATENDIDA")
+                .findAllByLivro_IdAndSituacaoSolicitacao_Descricao(resource.getLivro().getId(), "EM ESPERA")
                 .stream()
                 .min(Comparator.comparing(Solicitacao::getDataSolicitacao));
         boolean solicitanteNaoAtendido = resource.getSolicitante().getId() != solicitacaoMaisAntiga.get().getSolicitante().getId();
         if(solicitanteNaoAtendido){
-            throw new RuntimeException("O(A) solicitante " + solicitacaoMaisAntiga.get().getSolicitante().getNome() + " está no aguardo do emprestimo do livro");
+            throw new RuntimeException("O(A) solicitante " + solicitacaoMaisAntiga.get().getSolicitante().getNome() + " está no aguardo do emprestimo do livro. Entre em contato com solicitante ou mude o status da solicitação para Não atendida");
         }
         updateSituacaoSolicitacaoQuandoEmprestimoRealizado(solicitacaoMaisAntiga);
-
     }
 
+    /**
+     * Atualiza o status da solicitação mais antiga que foi atendida
+     * @param resource
+     */
+
     public void updateSituacaoSolicitacaoQuandoEmprestimoRealizado(Optional<Solicitacao> resource){
-        SituacaoSolicitacao situacao = new SituacaoSolicitacao();
-        situacao.setId(1L);
-        situacao.setDescricao("ATENTIDA");
-        resource.get().setSituacaoSolicitacao(situacao);
+        SituacaoSolicitacao situacaoAtendida = new SituacaoSolicitacao();
+        situacaoAtendida.setId(1L);
+        situacaoAtendida.setDescricao("ATENTIDA");
+        resource.get().setSituacaoSolicitacao(situacaoAtendida);
         solicitacaoRepository.save(resource.get());
     }
 }
