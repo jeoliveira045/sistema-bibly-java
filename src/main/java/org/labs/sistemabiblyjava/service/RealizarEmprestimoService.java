@@ -53,23 +53,24 @@ public class RealizarEmprestimoService {
 
     /**
      * Verifica se o solicitante do emprestimo é o mesmo da solicitacao mais antiga que está em espera
+     * O objetivo desse método é garantir que as solicitações vão ser atendidas por ordem de data
      * @param resource
      */
 
     public void validateSolicitacaoMaisAntiga(Emprestimo resource){
-        var solicitacaoMaisAntiga = solicitacaoRepository
+        var solicitacaoMaisAntigaDoSolicitante = solicitacaoRepository
                 .findAllByLivro_IdAndSituacaoSolicitacao_Descricao(resource.getLivro().getId(), "EM ESPERA")
                 .stream()
                 .min(Comparator.comparing(Solicitacao::getDataSolicitacao));
-        boolean solicitanteNaoAtendido = resource.getSolicitante().getId() != solicitacaoMaisAntiga.get().getSolicitante().getId();
+        boolean solicitanteNaoAtendido = resource.getSolicitante().getId() != solicitacaoMaisAntigaDoSolicitante.get().getSolicitante().getId();
         if(solicitanteNaoAtendido){
             throw new RuntimeException(
                     "O(A) solicitante " +
-                    solicitacaoMaisAntiga.get().getSolicitante().getNome() +
+                    solicitacaoMaisAntigaDoSolicitante.get().getSolicitante().getNome() +
                     " está no aguardo do emprestimo do livro. Entre em contato com solicitante ou mude o status da solicitação para Não atendida"
             );
         }
-        atualizarSituacaoSolicitacao.quandoEmprestimoRealizado(solicitacaoMaisAntiga);
+        atualizarSituacaoSolicitacao.quandoEmprestimoRealizado(solicitacaoMaisAntigaDoSolicitante);
     }
 
 
