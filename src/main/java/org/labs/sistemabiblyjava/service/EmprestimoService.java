@@ -1,5 +1,6 @@
 package org.labs.sistemabiblyjava.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
@@ -26,6 +27,7 @@ public class EmprestimoService {
     private EmprestimoRepository emprestimoRepository;
     private SolicitacaoRepository solicitacaoRepository;
 
+    @Transactional
     public Emprestimo exec(Emprestimo resource){
         validateLivroDisponivel(resource);
         validateSolicitacaoMaisAntiga(resource);
@@ -61,7 +63,11 @@ public class EmprestimoService {
                 .min(Comparator.comparing(Solicitacao::getDataSolicitacao));
         boolean solicitanteNaoAtendido = resource.getSolicitante().getId() != solicitacaoMaisAntiga.get().getSolicitante().getId();
         if(solicitanteNaoAtendido){
-            throw new RuntimeException("O(A) solicitante " + solicitacaoMaisAntiga.get().getSolicitante().getNome() + " está no aguardo do emprestimo do livro. Entre em contato com solicitante ou mude o status da solicitação para Não atendida");
+            throw new RuntimeException(
+                    "O(A) solicitante " +
+                    solicitacaoMaisAntiga.get().getSolicitante().getNome() +
+                    " está no aguardo do emprestimo do livro. Entre em contato com solicitante ou mude o status da solicitação para Não atendida"
+            );
         }
         updateSituacaoSolicitacaoQuandoEmprestimoRealizado(solicitacaoMaisAntiga);
     }
