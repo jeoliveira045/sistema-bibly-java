@@ -3,7 +3,7 @@ package org.labs.sistemabiblyjava.rest;
 import lombok.AllArgsConstructor;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
 import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
-import org.labs.sistemabiblyjava.service.EmprestimoService;
+import org.labs.sistemabiblyjava.service.RealizarEmprestimoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class EmprestimoRest {
     private EmprestimoRepository repository;
-    private final EmprestimoService emprestimoService;
+    private final RealizarEmprestimoService realizarEmprestimoService;
 
     @GetMapping
     public ResponseEntity<List<Emprestimo>> findAll(){
@@ -23,7 +23,7 @@ public class EmprestimoRest {
 
     @PostMapping
     public ResponseEntity<Emprestimo> insert(@RequestBody Emprestimo resource){
-        return ResponseEntity.ok(emprestimoService.exec(resource));
+        return ResponseEntity.ok(realizarEmprestimoService.exec(resource));
     }
 
     @GetMapping("/{id}")
@@ -34,7 +34,7 @@ public class EmprestimoRest {
     @PutMapping("/{id}")
     public ResponseEntity<Emprestimo> update(@PathVariable Long id,@RequestBody Emprestimo resource){
         resource.setId(id);
-        return ResponseEntity.ok(emprestimoService.exec(resource));
+        return ResponseEntity.ok(realizarEmprestimoService.exec(resource));
     }
 
     @DeleteMapping("/{id}")

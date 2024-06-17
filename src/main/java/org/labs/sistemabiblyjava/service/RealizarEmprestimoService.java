@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
 import org.labs.sistemabiblyjava.entities.SituacaoSolicitacao;
 import org.labs.sistemabiblyjava.entities.Solicitacao;
-import org.labs.sistemabiblyjava.entities.vw.LivroDisponivelView;
 import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
 import org.labs.sistemabiblyjava.repository.LivroRepository;
 import org.labs.sistemabiblyjava.repository.SolicitacaoRepository;
@@ -14,18 +13,19 @@ import org.labs.sistemabiblyjava.repository.vw.LivroDisponiveisViewRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 @Slf4j
-public class EmprestimoService {
+public class RealizarEmprestimoService {
 
     private LivroDisponiveisViewRepository livroDisponiveisViewRepository;
     private LivroRepository livroRepository;
     private EmprestimoRepository emprestimoRepository;
     private SolicitacaoRepository solicitacaoRepository;
+
+    private AtualizarSituacaoSolicitacaoService atualizarSituacaoSolicitacao;
 
     @Transactional
     public Emprestimo exec(Emprestimo resource){
@@ -69,19 +69,9 @@ public class EmprestimoService {
                     " está no aguardo do emprestimo do livro. Entre em contato com solicitante ou mude o status da solicitação para Não atendida"
             );
         }
-        updateSituacaoSolicitacaoQuandoEmprestimoRealizado(solicitacaoMaisAntiga);
+        atualizarSituacaoSolicitacao.quandoEmprestimoRealizado(solicitacaoMaisAntiga);
     }
 
-    /**
-     * Atualiza o status da solicitação mais antiga que foi atendida
-     * @param resource
-     */
 
-    public void updateSituacaoSolicitacaoQuandoEmprestimoRealizado(Optional<Solicitacao> resource){
-        SituacaoSolicitacao situacaoAtendida = new SituacaoSolicitacao();
-        situacaoAtendida.setId(1L);
-        situacaoAtendida.setDescricao("ATENTIDA");
-        resource.get().setSituacaoSolicitacao(situacaoAtendida);
-        solicitacaoRepository.save(resource.get());
-    }
+
 }

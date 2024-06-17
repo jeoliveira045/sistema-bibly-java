@@ -3,6 +3,7 @@ package org.labs.sistemabiblyjava.rest;
 import lombok.AllArgsConstructor;
 import org.labs.sistemabiblyjava.entities.Solicitacao;
 import org.labs.sistemabiblyjava.repository.SolicitacaoRepository;
+import org.labs.sistemabiblyjava.service.CancelarEmprestimoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SolicitacaoRest {
     private SolicitacaoRepository repository;
+    private CancelarEmprestimoService cancelarEmprestimoService;
 
 
     @GetMapping
@@ -34,6 +36,11 @@ public class SolicitacaoRest {
     public ResponseEntity<Solicitacao> update(@PathVariable Long id,@RequestBody Solicitacao resource){
         resource.setId(id);
         return ResponseEntity.ok(repository.save(resource));
+    }
+
+    @PutMapping("/cancelar-solicitacao/{id}")
+    public ResponseEntity<Solicitacao> cancelarSolicitacao(@PathVariable Long id, @RequestBody Solicitacao resource){
+        return ResponseEntity.ok(cancelarEmprestimoService.exec(resource));
     }
 
     @DeleteMapping("/{id}")
