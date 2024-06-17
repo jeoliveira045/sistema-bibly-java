@@ -56,7 +56,7 @@ top to bottom direction
     }
 
 
-    note left of SituacaoSolicitacao : EM ESPERA/ATENDIDA/RECUSADA
+    note left of SituacaoSolicitacao : CANCELADA/EM ESPERA/ATENDIDA/RECUSADA
 '    note right of SituacaoSolicitante : SEM PENDENCIA/PRECISA DEVOLVER
 '    note left of SituacaoLivro : EMPRESTADO/EM ESTOQUE
     note right of SituacaoEmprestimo: AGUARDANDO DEVOLUÇÃO/ENTREGE NO PRAZO/ENTREGE FORA DO PRAZO
