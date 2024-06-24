@@ -9,6 +9,11 @@ top to bottom direction
         - ISBN: String
         - genero: String
         - autor: String
+        - idioma: String
+        - altura: String
+        - largura: String
+        - edicao: String
+        - dataEdicao: LocalDate
     }
 
     class Emprestimo{
@@ -18,7 +23,7 @@ top to bottom direction
         - dataDevolucao: DateTime
     }
 
-    class Solicitante{
+    class Cliente{
         - id: Long
         - nome: String
         - sobrenome: String
@@ -26,16 +31,23 @@ top to bottom direction
         - genero: String
         - endereco; String
         - CPF: string
+        - responsavel: String
+        - cpfResponsavel: String
+        - comprovanteResidencia: Blob
+        - certidaoNascimento: Blob
+        - rg: String
+        - numeroTelefone: String
+        - foto: Blob
     }
 
-    class Solicitacao{
+    class Reserva{
         - id: Long
         - dataSolicitacao: LocalDate
         - dataEmprestimoEm: LocalDate
         - prazoDevolucao: LocalDate
     }
 
-    class SituacaoSolicitacao<<Setting>>{
+    class SituacaoReserva<<Setting>>{
         - id: Long
         - descricao: String
     }
@@ -55,21 +67,44 @@ top to bottom direction
         - descricao: String
     }
 
+    class Colecao<<Setting>>{
+        - id: Long
+        - descricao: String
+    }
 
-    note left of SituacaoSolicitacao : CANCELADA/EM ESPERA/ATENDIDA/RECUSADA
+    class ComprovanteDevolucao{
+        - id: Long
+        - nomeCliente: String
+        - dataDevolucao: LocalDate
+        - livroNome: String
+        - numeroNotaFiscal: String
+    }
+
+    class Editora {
+        - id: Long
+        - nomeEditora: String
+        - endereco: String
+        - numeroTelefone: String
+    }
+
+
+    note right of SituacaoReserva : CANCELADA/EM ESPERA/ATENDIDA/RECUSADA
 '    note right of SituacaoSolicitante : SEM PENDENCIA/PRECISA DEVOLVER
 '    note left of SituacaoLivro : EMPRESTADO/EM ESTOQUE
-    note right of SituacaoEmprestimo: AGUARDANDO DEVOLUÇÃO/ENTREGE NO PRAZO/ENTREGE FORA DO PRAZO
+    note left of SituacaoEmprestimo: AGUARDANDO DEVOLUÇÃO/ENTREGE NO PRAZO/ENTREGE FORA DO PRAZO
 
 
-    Emprestimo "0..*"--> "1" Livro
-    Emprestimo "0..*" --> "1" Solicitante
-    Solicitacao "0..*" --> "1" Solicitante
-    Solicitacao "0..*" --> "1" Livro
-    Solicitacao  "0..*" --> "1" SituacaoSolicitacao
+    Emprestimo "0..*"-u-o "2" Livro
+    Emprestimo "0..*" -u-o "1" Cliente
+    Reserva "0..*" --o "1" Cliente
+    Reserva "0..*" --o "2" Livro
+    Reserva  "0..*" --> "1" SituacaoReserva
 '    Solicitante "0..*" --> "1" SituacaoSolicitante
 '    Livro "0..*" --> "1" SituacaoLivro
     Emprestimo "0..*" --> "1" SituacaoEmprestimo
+    Livro "0..*" --> "1" Colecao
+    Livro "1" --> "1" Editora
+    Emprestimo "1" --> "1" ComprovanteDevolucao
 
 
 @enduml
