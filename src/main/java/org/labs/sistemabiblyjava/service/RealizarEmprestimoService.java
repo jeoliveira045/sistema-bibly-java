@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
-import org.labs.sistemabiblyjava.entities.SituacaoSolicitacao;
 import org.labs.sistemabiblyjava.entities.Solicitacao;
 import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
 import org.labs.sistemabiblyjava.repository.LivroRepository;
@@ -13,7 +12,6 @@ import org.labs.sistemabiblyjava.repository.vw.LivroDisponiveisViewRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -62,11 +60,11 @@ public class RealizarEmprestimoService {
                 .findAllByLivro_IdAndSituacaoSolicitacao_Descricao(resource.getLivro().getId(), "EM ESPERA")
                 .stream()
                 .min(Comparator.comparing(Solicitacao::getDataSolicitacao));
-        boolean solicitanteNaoAtendido = resource.getSolicitante().getId() != solicitacaoMaisAntigaDoSolicitante.get().getSolicitante().getId();
+        boolean solicitanteNaoAtendido = resource.getCliente().getId() != solicitacaoMaisAntigaDoSolicitante.get().getCliente().getId();
         if(solicitanteNaoAtendido){
             throw new RuntimeException(
                     "O(A) solicitante " +
-                    solicitacaoMaisAntigaDoSolicitante.get().getSolicitante().getNome() +
+                    solicitacaoMaisAntigaDoSolicitante.get().getCliente().getNome() +
                     " está no aguardo do emprestimo do livro. Entre em contato com solicitante ou mude o status da solicitação para Não atendida"
             );
         }

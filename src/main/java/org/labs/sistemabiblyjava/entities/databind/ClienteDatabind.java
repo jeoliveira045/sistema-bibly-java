@@ -3,22 +3,22 @@ package org.labs.sistemabiblyjava.entities.databind;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import org.labs.sistemabiblyjava.entities.Solicitante;
+import org.labs.sistemabiblyjava.entities.Cliente;
 
 import java.io.IOException;
 
-public class SolicitanteDatabind {
-    public static class IdDeserializer extends JsonDeserializer<Solicitante> {
+public class ClienteDatabind {
+    public static class IdDeserializer extends JsonDeserializer<Cliente> {
         @Override
-        public Solicitante deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
+        public Cliente deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
             JsonNode node = jp.getCodec().readTree(jp);
             if (node.isNumber()) {
-                Solicitante c = new Solicitante();
+                Cliente c = new Cliente();
                 c.setId(node.asLong());
                 return c;
             } else if (node.isObject()) {
                 JsonNode id = node.get("id");
-                Solicitante c = new Solicitante();
+                Cliente c = new Cliente();
                 c.setId(id.asLong());
                 return c;
             }
@@ -26,9 +26,9 @@ public class SolicitanteDatabind {
         }
     }
 
-    public static class IdSerializer extends JsonSerializer<Solicitante> {
+    public static class IdSerializer extends JsonSerializer<Cliente> {
         @Override
-        public void serialize(Solicitante entity, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws
+        public void serialize(Cliente entity, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws
                 IOException {
             jsonGenerator.writeNumber(entity.getId());
         }

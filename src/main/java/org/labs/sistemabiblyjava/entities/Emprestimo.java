@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.labs.sistemabiblyjava.entities.databind.LivroDatabind;
 import org.labs.sistemabiblyjava.entities.databind.SituacaoEmprestimoDatabind;
-import org.labs.sistemabiblyjava.entities.databind.SolicitanteDatabind;
+import org.labs.sistemabiblyjava.entities.databind.ClienteDatabind;
 
 import java.time.LocalDate;
 
@@ -26,9 +26,9 @@ public class Emprestimo {
     private LocalDate dataDevolucao;
 
     @ManyToOne
-    @JsonSerialize(using = SolicitanteDatabind.IdSerializer.class)
-    @JsonDeserialize(using = SolicitanteDatabind.IdDeserializer.class)
-    private Solicitante solicitante;
+    @JsonSerialize(using = ClienteDatabind.IdSerializer.class)
+    @JsonDeserialize(using = ClienteDatabind.IdDeserializer.class)
+    private Cliente cliente;
 
     @ManyToOne
     @JsonSerialize(using = LivroDatabind.IdSerializer.class)
