@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "situacaosolicitacao")
 @Data
 @NoArgsConstructor
-public class SituacaoSolicitacao {
+public class SituacaoReserva {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

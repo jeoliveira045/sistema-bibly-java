@@ -4,10 +4,10 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
-import org.labs.sistemabiblyjava.entities.Solicitacao;
+import org.labs.sistemabiblyjava.entities.Reserva;
 import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
 import org.labs.sistemabiblyjava.repository.LivroRepository;
-import org.labs.sistemabiblyjava.repository.SolicitacaoRepository;
+import org.labs.sistemabiblyjava.repository.ReservaRepository;
 import org.labs.sistemabiblyjava.repository.vw.LivroDisponiveisViewRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class RealizarEmprestimoService {
     private LivroDisponiveisViewRepository livroDisponiveisViewRepository;
     private LivroRepository livroRepository;
     private EmprestimoRepository emprestimoRepository;
-    private SolicitacaoRepository solicitacaoRepository;
+    private ReservaRepository reservaRepository;
 
     private AtualizarSituacaoSolicitacaoService atualizarSituacaoSolicitacao;
 
@@ -56,10 +56,10 @@ public class RealizarEmprestimoService {
      */
 
     public void validateSolicitacaoMaisAntiga(Emprestimo resource){
-        var solicitacaoMaisAntigaDoSolicitante = solicitacaoRepository
+        var solicitacaoMaisAntigaDoSolicitante = reservaRepository
                 .findAllByLivro_IdAndSituacaoSolicitacao_Descricao(resource.getLivro().getId(), "EM ESPERA")
                 .stream()
-                .min(Comparator.comparing(Solicitacao::getDataSolicitacao));
+                .min(Comparator.comparing(Reserva::getDataSolicitacao));
         boolean solicitanteNaoAtendido = resource.getCliente().getId() != solicitacaoMaisAntigaDoSolicitante.get().getCliente().getId();
         if(solicitanteNaoAtendido){
             throw new RuntimeException(

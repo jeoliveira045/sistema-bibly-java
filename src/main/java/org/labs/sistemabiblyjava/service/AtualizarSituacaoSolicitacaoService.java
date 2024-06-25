@@ -2,9 +2,9 @@ package org.labs.sistemabiblyjava.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.labs.sistemabiblyjava.entities.SituacaoSolicitacao;
-import org.labs.sistemabiblyjava.entities.Solicitacao;
-import org.labs.sistemabiblyjava.repository.SolicitacaoRepository;
+import org.labs.sistemabiblyjava.entities.SituacaoReserva;
+import org.labs.sistemabiblyjava.entities.Reserva;
+import org.labs.sistemabiblyjava.repository.ReservaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,18 +13,18 @@ import java.util.Optional;
 @AllArgsConstructor
 @Slf4j
 public class AtualizarSituacaoSolicitacaoService {
-    private SolicitacaoRepository solicitacaoRepository;
+    private ReservaRepository reservaRepository;
 
     /**
      * Atualiza o status da solicitação mais antiga que foi atendida
      * @param resource
      */
 
-    public void quandoEmprestimoRealizado(Optional<Solicitacao> resource) {
-        SituacaoSolicitacao situacaoAtendida = new SituacaoSolicitacao();
+    public void quandoEmprestimoRealizado(Optional<Reserva> resource) {
+        SituacaoReserva situacaoAtendida = new SituacaoReserva();
         situacaoAtendida.setId(1L);
         situacaoAtendida.setDescricao("ATENTIDA");
-        resource.get().setSituacaoSolicitacao(situacaoAtendida);
-        solicitacaoRepository.save(resource.get());
+        resource.get().setSituacaoReserva(situacaoAtendida);
+        reservaRepository.save(resource.get());
     }
 }
