@@ -11,7 +11,10 @@ import org.labs.sistemabiblyjava.repository.ReservaRepository;
 import org.labs.sistemabiblyjava.repository.vw.LivroDisponiveisViewRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -27,8 +30,11 @@ public class RealizarEmprestimoService {
 
     @Transactional
     public Emprestimo exec(Emprestimo resource){
+        validateQuantidadeDeLivrosEmprestados(resource);
+        validateDoisLivrosDiferentes(resource);
         validateLivroDisponivel(resource);
-        validateSolicitacaoMaisAntiga(resource);
+        validateReservaMaisAntiga(resource);
+        resource = setDataDevolucaoDezDiasDepoisDataEmprestimoEm(resource);
         emprestimoRepository.save(resource);
         return resource;
     }
@@ -38,37 +44,57 @@ public class RealizarEmprestimoService {
      * @param resource
      */
     public void validateLivroDisponivel(Emprestimo resource){
-
-        var livroSolicitadoNaoDisponivelParaEmprestimo = livroDisponiveisViewRepository
-                .findById(resource.getLivro().getId())
+        var livroSolicitadoNaoDisponivelParaEmprestimo = resource
+                .getLivro()
                 .stream()
-                .anyMatch(livroDisponivelView -> livroDisponivelView.getQuantiaLivrosDisponiveis() == 0);
-
+                .anyMatch(livro -> livroDisponiveisViewRepository.findById(livro.getId()).get().getQuantiaLivrosDisponiveis() <= 0);
         if(livroSolicitadoNaoDisponivelParaEmprestimo){
             throw new RuntimeException("Livro indisponível para emprestimo");
         }
     }
 
+    public void validateQuantidadeDeLivrosEmprestados(Emprestimo resource){
+        var maisDeDoisLivrosEmprestados = resource.getLivro().size() > 2;
+        if(maisDeDoisLivrosEmprestados){
+            throw new RuntimeException("A quantidade máxima de livros que podem ser emprestados é 2");
+        }
+    }
     /**
      * Verifica se o solicitante do emprestimo é o mesmo da solicitacao mais antiga que está em espera
      * O objetivo desse método é garantir que as solicitações vão ser atendidas por ordem de data
      * @param resource
      */
 
-    public void validateSolicitacaoMaisAntiga(Emprestimo resource){
-        var solicitacaoMaisAntigaDoSolicitante = reservaRepository
-                .findAllByLivro_IdAndSituacaoSolicitacao_Descricao(resource.getLivro().getId(), "EM ESPERA")
-                .stream()
-                .min(Comparator.comparing(Reserva::getDataSolicitacao));
-        boolean solicitanteNaoAtendido = resource.getCliente().getId() != solicitacaoMaisAntigaDoSolicitante.get().getCliente().getId();
-        if(solicitanteNaoAtendido){
-            throw new RuntimeException(
-                    "O(A) solicitante " +
-                    solicitacaoMaisAntigaDoSolicitante.get().getCliente().getNome() +
-                    " está no aguardo do emprestimo do livro. Entre em contato com solicitante ou mude o status da solicitação para Não atendida"
+
+    public void validateReservaMaisAntiga(Emprestimo resource){
+        var clienteEmprestimoNotEqualClienteReservaMaisAntiga = resource.getLivro().stream().anyMatch(livro -> {
+           var reserva = reservaRepository
+                   .findAllByLivro_IdAndSituacaoReserva_Descricao(
+                           livro.getId(), "EM ESPERA")
+                   .stream()
+                   .min(Comparator.comparing(Reserva::getDataReserva));
+                return reserva.get().getCliente().getId() != resource.getCliente().getId();
+        });
+        if(clienteEmprestimoNotEqualClienteReservaMaisAntiga){
+            throw new RuntimeException("O " +
+                    "livro emprestado " +
+                    "está reservado. Contate o ultimo cliente " +
+                    "que está reservando esse livro ou " +
+                    "coloque a reserva para \"Não Atendida\""
             );
         }
-        atualizarSituacaoSolicitacao.quandoEmprestimoRealizado(solicitacaoMaisAntigaDoSolicitante);
+    }
+
+    public void validateDoisLivrosDiferentes(Emprestimo emprestimo){
+        var doisLivrosIguais = emprestimo.getLivro().get(0) == emprestimo.getLivro().get(1);
+        if(doisLivrosIguais){
+            throw new RuntimeException("O emprestimo não pode ter dois livros iguais");
+        }
+    }
+
+    public Emprestimo setDataDevolucaoDezDiasDepoisDataEmprestimoEm(Emprestimo resource){
+        resource.setDataDevolucao(resource.getDtEmprestimoEm().plusDays(10L));
+        return resource;
     }
 
 

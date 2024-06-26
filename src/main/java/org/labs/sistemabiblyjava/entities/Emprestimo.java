@@ -9,6 +9,8 @@ import org.labs.sistemabiblyjava.entities.databind.SituacaoEmprestimoDatabind;
 import org.labs.sistemabiblyjava.entities.databind.ClienteDatabind;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "emprestimos")
@@ -30,10 +32,13 @@ public class Emprestimo {
     @JsonDeserialize(using = ClienteDatabind.IdDeserializer.class)
     private Cliente cliente;
 
-    @ManyToOne
+    @ManyToMany
+    @JoinTable(name = "emprestimo_livro",
+            joinColumns = @JoinColumn(name = "emprestimo_id"),
+            inverseJoinColumns = @JoinColumn(name = "livro_id"))
     @JsonSerialize(using = LivroDatabind.IdSerializer.class)
     @JsonDeserialize(using = LivroDatabind.IdDeserializer.class)
-    private Livro livro;
+    private List<Livro> livro;
 
     @ManyToOne
     @JsonSerialize(using = SituacaoEmprestimoDatabind.IdSerializer.class)

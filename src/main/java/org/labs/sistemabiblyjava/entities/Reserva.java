@@ -9,16 +9,18 @@ import org.labs.sistemabiblyjava.entities.databind.SituacaoReservaDatabind;
 import org.labs.sistemabiblyjava.entities.databind.ClienteDatabind;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @Entity
-@Table(name = "solicitacoes")
+@Table(name = "reserva")
 @Data
 public class Reserva {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "data_solicitacao")
-    private LocalDate dataSolicitacao;
+    @Column(name = "data_reserva")
+    private LocalDate dataReserva;
     @Column(name = "dt_emprestimo_em")
     private LocalDate dataEmprestimoEm;
     @Column(name = "prazo_devolucao")
@@ -29,10 +31,13 @@ public class Reserva {
     @JsonDeserialize(using = ClienteDatabind.IdDeserializer.class)
     private Cliente cliente;
 
-    @ManyToOne
+    @ManyToMany
+    @JoinTable(name = "reserva_livro",
+            joinColumns = @JoinColumn(name = "reserva_id"),
+            inverseJoinColumns = @JoinColumn(name = "livro_id"))
     @JsonSerialize(using = LivroDatabind.IdSerializer.class)
     @JsonDeserialize(using = LivroDatabind.IdDeserializer.class)
-    private Livro livro;
+    private List<Livro> livro;
 
     @ManyToOne
     @JsonSerialize(using = SituacaoReservaDatabind.IdSerializer.class)
