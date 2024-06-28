@@ -32,12 +32,12 @@ public class Emprestimo {
     @JsonDeserialize(using = ClienteDatabind.IdDeserializer.class)
     private Cliente cliente;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "emprestimo_livro",
             joinColumns = @JoinColumn(name = "emprestimo_id"),
             inverseJoinColumns = @JoinColumn(name = "livro_id"))
-    @JsonSerialize(using = LivroDatabind.IdSerializer.class)
-    @JsonDeserialize(using = LivroDatabind.IdDeserializer.class)
+//    @JsonSerialize(using = LivroDatabind.IdSerializer.class)
+//    @JsonDeserialize(using = LivroDatabind.IdDeserializer.class)
     private List<Livro> livro;
 
     @ManyToOne

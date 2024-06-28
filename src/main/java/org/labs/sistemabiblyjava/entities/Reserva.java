@@ -31,13 +31,10 @@ public class Reserva {
     @JsonDeserialize(using = ClienteDatabind.IdDeserializer.class)
     private Cliente cliente;
 
-    @ManyToMany
-    @JoinTable(name = "reserva_livro",
-            joinColumns = @JoinColumn(name = "reserva_id"),
-            inverseJoinColumns = @JoinColumn(name = "livro_id"))
+    @ManyToOne
     @JsonSerialize(using = LivroDatabind.IdSerializer.class)
     @JsonDeserialize(using = LivroDatabind.IdDeserializer.class)
-    private List<Livro> livro;
+    private Livro livro;
 
     @ManyToOne
     @JsonSerialize(using = SituacaoReservaDatabind.IdSerializer.class)

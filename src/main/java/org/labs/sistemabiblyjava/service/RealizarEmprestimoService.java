@@ -5,16 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
 import org.labs.sistemabiblyjava.entities.Reserva;
+import org.labs.sistemabiblyjava.repository.ClienteRepository;
 import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
 import org.labs.sistemabiblyjava.repository.LivroRepository;
 import org.labs.sistemabiblyjava.repository.ReservaRepository;
 import org.labs.sistemabiblyjava.repository.vw.LivroDisponiveisViewRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Comparator;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +25,7 @@ public class RealizarEmprestimoService {
     private LivroRepository livroRepository;
     private EmprestimoRepository emprestimoRepository;
     private ReservaRepository reservaRepository;
+    private ClienteRepository clienteRepository;
 
     private AtualizarSituacaoSolicitacaoService atualizarSituacaoSolicitacao;
 
@@ -34,6 +35,7 @@ public class RealizarEmprestimoService {
         validateDoisLivrosDiferentes(resource);
         validateLivroDisponivel(resource);
         validateReservaMaisAntiga(resource);
+        validateClienteCadastrado(resource);
         resource = setDataDevolucaoDezDiasDepoisDataEmprestimoEm(resource);
         emprestimoRepository.save(resource);
         return resource;
@@ -47,7 +49,11 @@ public class RealizarEmprestimoService {
         var livroSolicitadoNaoDisponivelParaEmprestimo = resource
                 .getLivro()
                 .stream()
-                .anyMatch(livro -> livroDisponiveisViewRepository.findById(livro.getId()).get().getQuantiaLivrosDisponiveis() <= 0);
+                .anyMatch(livro -> livroDisponiveisViewRepository
+                                .findById(livro.getId())
+                                .get()
+                                .getQuantiaLivrosDisponiveis() <= 0
+                );
         if(livroSolicitadoNaoDisponivelParaEmprestimo){
             throw new RuntimeException("Livro indisponível para emprestimo");
         }
@@ -67,13 +73,14 @@ public class RealizarEmprestimoService {
 
 
     public void validateReservaMaisAntiga(Emprestimo resource){
+        AtomicReference<Optional<Reserva>> reservaOptional = new AtomicReference<>();
         var clienteEmprestimoNotEqualClienteReservaMaisAntiga = resource.getLivro().stream().anyMatch(livro -> {
-           var reserva = reservaRepository
+           reservaOptional.set(reservaRepository
                    .findAllByLivro_IdAndSituacaoReserva_Descricao(
                            livro.getId(), "EM ESPERA")
                    .stream()
-                   .min(Comparator.comparing(Reserva::getDataReserva));
-                return reserva.get().getCliente().getId() != resource.getCliente().getId();
+                   .min(Comparator.comparing(Reserva::getDataReserva)));
+                return reservaOptional.get().get().getCliente().getId() != resource.getCliente().getId();
         });
         if(clienteEmprestimoNotEqualClienteReservaMaisAntiga){
             throw new RuntimeException("O " +
@@ -83,13 +90,24 @@ public class RealizarEmprestimoService {
                     "coloque a reserva para \"Não Atendida\""
             );
         }
+        atualizarSituacaoSolicitacao.quandoEmprestimoRealizado(reservaOptional.get());
     }
 
     public void validateDoisLivrosDiferentes(Emprestimo emprestimo){
-        var doisLivrosIguais = emprestimo.getLivro().get(0) == emprestimo.getLivro().get(1);
-        if(doisLivrosIguais){
-            throw new RuntimeException("O emprestimo não pode ter dois livros iguais");
+        if(emprestimo.getLivro().size() > 2){
+            var doisLivrosIguais = emprestimo.getLivro().get(0) == emprestimo.getLivro().get(1);
+            if(doisLivrosIguais){
+                throw new RuntimeException("O emprestimo não pode ter dois livros iguais");
+            }
         }
+    }
+
+    public void validateClienteCadastrado(Emprestimo emprestimo){
+        var clienteNaoExistente = clienteRepository.findById(emprestimo.getCliente().getId()).isEmpty();
+        if(clienteNaoExistente){
+            throw new RuntimeException("Cliente não encontrado na base");
+        }
+
     }
 
     public Emprestimo setDataDevolucaoDezDiasDepoisDataEmprestimoEm(Emprestimo resource){
