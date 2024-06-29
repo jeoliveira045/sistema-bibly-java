@@ -4,17 +4,26 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
-import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
-import org.labs.sistemabiblyjava.repository.LivroQuantiaEstoqueRepository;
-import org.labs.sistemabiblyjava.repository.ReservaRepository;
+import org.labs.sistemabiblyjava.repository.*;
+import org.labs.sistemabiblyjava.repository.vw.LivroDisponiveisViewRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+//@AllArgsConstructor
 public class AtualizarEmprestimoService extends OperacaoEmprestimoService {
 
-    private LivroQuantiaEstoqueRepository livroQuantiaEstoqueRepository;
+
+    public AtualizarEmprestimoService(
+            LivroDisponiveisViewRepository livroDisponiveisViewRepository,
+            LivroRepository livroRepository,
+            EmprestimoRepository emprestimoRepository,
+            ReservaRepository reservaRepository,
+            ClienteRepository clienteRepository,
+            AtualizarSituacaoSolicitacaoService atualizarSituacaoSolicitacao) {
+        super(livroDisponiveisViewRepository, livroRepository, emprestimoRepository, reservaRepository, clienteRepository, atualizarSituacaoSolicitacao);
+    }
 
     @Transactional
     public Emprestimo exec(Emprestimo resource){
@@ -30,7 +39,7 @@ public class AtualizarEmprestimoService extends OperacaoEmprestimoService {
 
     public void validateLivroDisponivelEmEstoque(Emprestimo emprestimo){
         var semLivroDisponivelEmEstoque = emprestimo.getLivro().stream().anyMatch(livro -> {
-            return livroQuantiaEstoqueRepository.findById(livro.getId()).get().getQuantia() <= 0;
+            return livroDisponiveisViewRepository.findById(livro.getId()).get().getQuantiaLivrosDisponiveis() <= 0;
         });
 
         var existeReservaRequisitadaParaLivro = emprestimo.getLivro().stream().anyMatch(livro -> {
