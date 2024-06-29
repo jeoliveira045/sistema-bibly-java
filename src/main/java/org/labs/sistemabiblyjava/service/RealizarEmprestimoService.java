@@ -62,7 +62,7 @@ public class RealizarEmprestimoService {
     public void validateQuantidadeDeLivrosEmprestados(Emprestimo resource){
         var maisDeDoisLivrosEmprestados = resource.getLivro().size() > 2;
         if(maisDeDoisLivrosEmprestados){
-            throw new RuntimeException("A quantidade máxima de livros que podem ser emprestados é 2");
+            throw new RuntimeException("A quantidade máxima de livros por emprestimo é 2");
         }
     }
     /**
@@ -95,8 +95,8 @@ public class RealizarEmprestimoService {
 
     public void validateDoisLivrosDiferentes(Emprestimo emprestimo){
         if(emprestimo.getLivro().size() > 2){
-            var doisLivrosIguais = emprestimo.getLivro().get(0) == emprestimo.getLivro().get(1);
-            if(doisLivrosIguais){
+            var emprestimoComDoisLivrosIguais = emprestimo.getLivro().get(0) == emprestimo.getLivro().get(1);
+            if(emprestimoComDoisLivrosIguais){
                 throw new RuntimeException("O emprestimo não pode ter dois livros iguais");
             }
         }

@@ -19,20 +19,20 @@ public class RealizarRenovacaoService {
 
 
     public Emprestimo exec(Emprestimo resource){
-        validateLivroEmEstoque(resource);
+        validateLivroDisponivelEmEstoque(resource);
         return emprestimoRepository.save(resource);
     }
 
-    public void validateLivroEmEstoque(Emprestimo emprestimo){
-        var semLivroEmEstoque = emprestimo.getLivro().stream().anyMatch(livro -> {
+    public void validateLivroDisponivelEmEstoque(Emprestimo emprestimo){
+        var semLivroDisponivelEmEstoque = emprestimo.getLivro().stream().anyMatch(livro -> {
             return livroQuantiaEstoqueRepository.findById(livro.getId()).get().getQuantia() <= 0;
         });
 
-        var reservaRequisitadaParaLivro = emprestimo.getLivro().stream().anyMatch(livro -> {
+        var existeReservaRequisitadaParaLivro = emprestimo.getLivro().stream().anyMatch(livro -> {
             return reservaRepository.findAllByLivro_IdAndSituacaoReserva_Descricao(livro.getId(), "EM ESPERA").size() > 1;
         });
 
-        if(reservaRequisitadaParaLivro && semLivroEmEstoque){
+        if(existeReservaRequisitadaParaLivro && semLivroDisponivelEmEstoque){
             throw new RuntimeException("Existem reservas para este livro e o estoque está vazio. Não é possivel realizar a renovação.");
         }
     }
