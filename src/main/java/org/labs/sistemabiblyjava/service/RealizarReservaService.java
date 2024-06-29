@@ -1,6 +1,7 @@
 package org.labs.sistemabiblyjava.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
@@ -21,6 +22,7 @@ public class RealizarReservaService {
     private final ClienteRepository clienteRepository;
     private final LivroRepository livroRepository;
 
+    @Transactional
     public Reserva exec(Reserva resource){
         validateClienteCadastrado(resource);
         validatePeriodosDistintos(resource);

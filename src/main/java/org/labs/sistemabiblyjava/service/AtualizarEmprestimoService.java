@@ -1,5 +1,6 @@
 package org.labs.sistemabiblyjava.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
@@ -11,14 +12,18 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @AllArgsConstructor
-public class RealizarRenovacaoService {
+public class AtualizarEmprestimoService extends OperacaoEmprestimoService {
 
-    private ReservaRepository reservaRepository;
-    private EmprestimoRepository emprestimoRepository;
     private LivroQuantiaEstoqueRepository livroQuantiaEstoqueRepository;
 
-
+    @Transactional
     public Emprestimo exec(Emprestimo resource){
+        validateQuantidadeDeLivrosEmprestados(resource);
+        validateDoisLivrosDiferentes(resource);
+        validateLivroDisponivel(resource);
+        validateReservaMaisAntiga(resource);
+        validateClienteCadastrado(resource);
+        validateQuantidadeDeDiasDoEmprestimo(resource);
         validateLivroDisponivelEmEstoque(resource);
         return emprestimoRepository.save(resource);
     }

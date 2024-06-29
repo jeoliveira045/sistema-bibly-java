@@ -3,8 +3,8 @@ package org.labs.sistemabiblyjava.rest;
 import lombok.AllArgsConstructor;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
 import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
-import org.labs.sistemabiblyjava.service.RealizarEmprestimoService;
-import org.labs.sistemabiblyjava.service.RealizarRenovacaoService;
+import org.labs.sistemabiblyjava.service.AdicionarEmprestimoService;
+import org.labs.sistemabiblyjava.service.AtualizarEmprestimoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +16,8 @@ import java.util.List;
 public class EmprestimoRest {
 
     private final EmprestimoRepository repository;
-    private final RealizarEmprestimoService realizarEmprestimoService;
-    private final RealizarRenovacaoService realizarRenovacaoService;
+    private final AdicionarEmprestimoService adicionarEmprestimoService;
+    private final AtualizarEmprestimoService atualizarEmprestimoService;
 
 
     @GetMapping
@@ -27,7 +27,7 @@ public class EmprestimoRest {
 
     @PostMapping
     public ResponseEntity<Emprestimo> insert(@RequestBody Emprestimo resource){
-        return ResponseEntity.ok(realizarEmprestimoService.exec(resource));
+        return ResponseEntity.ok(adicionarEmprestimoService.exec(resource));
     }
 
     @GetMapping("/{id}")
@@ -38,13 +38,13 @@ public class EmprestimoRest {
     @PutMapping("/renovar-emprestimo/{id}")
     public ResponseEntity<Emprestimo> renovarEmprestimoDosLivros(@PathVariable Long id, @RequestBody Emprestimo resource){
         resource.setId(id);
-        return ResponseEntity.ok(realizarRenovacaoService.exec(resource));
+        return ResponseEntity.ok(atualizarEmprestimoService.exec(resource));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Emprestimo> update(@PathVariable Long id,@RequestBody Emprestimo resource){
         resource.setId(id);
-        return ResponseEntity.ok(realizarEmprestimoService.exec(resource));
+        return ResponseEntity.ok(adicionarEmprestimoService.exec(resource));
     }
 
     @DeleteMapping("/{id}")

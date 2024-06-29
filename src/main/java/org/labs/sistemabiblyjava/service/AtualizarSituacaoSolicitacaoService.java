@@ -1,5 +1,6 @@
 package org.labs.sistemabiblyjava.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.SituacaoReserva;
@@ -20,6 +21,7 @@ public class AtualizarSituacaoSolicitacaoService {
      * @param resource
      */
 
+    @Transactional
     public void quandoEmprestimoRealizado(Optional<Reserva> resource) {
         SituacaoReserva situacaoAtendida = new SituacaoReserva();
         situacaoAtendida.setId(1L);

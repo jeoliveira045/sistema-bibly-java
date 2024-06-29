@@ -1,8 +1,6 @@
 package org.labs.sistemabiblyjava.service;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.labs.sistemabiblyjava.entities.Emprestimo;
 import org.labs.sistemabiblyjava.entities.Reserva;
 import org.labs.sistemabiblyjava.repository.ClienteRepository;
@@ -10,24 +8,23 @@ import org.labs.sistemabiblyjava.repository.EmprestimoRepository;
 import org.labs.sistemabiblyjava.repository.LivroRepository;
 import org.labs.sistemabiblyjava.repository.ReservaRepository;
 import org.labs.sistemabiblyjava.repository.vw.LivroDisponiveisViewRepository;
-import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Service
-@AllArgsConstructor
-@Slf4j
-public class RealizarEmprestimoService {
 
-    private LivroDisponiveisViewRepository livroDisponiveisViewRepository;
-    private LivroRepository livroRepository;
-    private EmprestimoRepository emprestimoRepository;
-    private ReservaRepository reservaRepository;
-    private ClienteRepository clienteRepository;
+abstract class OperacaoEmprestimoService {
 
-    private AtualizarSituacaoSolicitacaoService atualizarSituacaoSolicitacao;
+    protected LivroDisponiveisViewRepository livroDisponiveisViewRepository;
+    protected LivroRepository livroRepository;
+    protected EmprestimoRepository emprestimoRepository;
+    protected ReservaRepository reservaRepository;
+    protected ClienteRepository clienteRepository;
+
+    protected AtualizarSituacaoSolicitacaoService atualizarSituacaoSolicitacao;
 
     @Transactional
     public Emprestimo exec(Emprestimo resource){
@@ -36,7 +33,7 @@ public class RealizarEmprestimoService {
         validateLivroDisponivel(resource);
         validateReservaMaisAntiga(resource);
         validateClienteCadastrado(resource);
-        resource = setDataDevolucaoDezDiasDepoisDataEmprestimoEm(resource);
+        validateQuantidadeDeDiasDoEmprestimo(resource);
         emprestimoRepository.save(resource);
         return resource;
     }
@@ -50,9 +47,9 @@ public class RealizarEmprestimoService {
                 .getLivro()
                 .stream()
                 .anyMatch(livro -> livroDisponiveisViewRepository
-                                .findById(livro.getId())
-                                .get()
-                                .getQuantiaLivrosDisponiveis() <= 0
+                        .findById(livro.getId())
+                        .get()
+                        .getQuantiaLivrosDisponiveis() <= 0
                 );
         if(livroSolicitadoNaoDisponivelParaEmprestimo){
             throw new RuntimeException("Livro indisponível para emprestimo");
@@ -75,12 +72,12 @@ public class RealizarEmprestimoService {
     public void validateReservaMaisAntiga(Emprestimo resource){
         AtomicReference<Optional<Reserva>> reservaOptional = new AtomicReference<>();
         var clienteEmprestimoNotEqualClienteReservaMaisAntiga = resource.getLivro().stream().anyMatch(livro -> {
-           reservaOptional.set(reservaRepository
-                   .findAllByLivro_IdAndSituacaoReserva_Descricao(
-                           livro.getId(), "EM ESPERA")
-                   .stream()
-                   .min(Comparator.comparing(Reserva::getDataReserva)));
-                return reservaOptional.get().get().getCliente().getId() != resource.getCliente().getId();
+            reservaOptional.set(reservaRepository
+                    .findAllByLivro_IdAndSituacaoReserva_Descricao(
+                            livro.getId(), "EM ESPERA")
+                    .stream()
+                    .min(Comparator.comparing(Reserva::getDataReserva)));
+            return reservaOptional.get().get().getCliente().getId() != resource.getCliente().getId();
         });
         if(clienteEmprestimoNotEqualClienteReservaMaisAntiga){
             throw new RuntimeException("O " +
@@ -110,11 +107,15 @@ public class RealizarEmprestimoService {
 
     }
 
-    public Emprestimo setDataDevolucaoDezDiasDepoisDataEmprestimoEm(Emprestimo resource){
-        resource.setDataDevolucao(resource.getDtEmprestimoEm().plusDays(10L));
-        return resource;
+    public void validateQuantidadeDeDiasDoEmprestimo(Emprestimo resource){
+        LocalDate dataInicialDoEmprestimo = resource.getDtEmprestimoEm();
+        LocalDate dataFinalDoEmprestimo = resource.getPrazoDevolucaoEm();
+
+        Period periodoDeEmprestimo = Period.between(dataFinalDoEmprestimo, dataInicialDoEmprestimo);
+        var periodoDeEmprestimoMaiorQueDezDias = periodoDeEmprestimo.getDays() > 10;
+
+        if(periodoDeEmprestimoMaiorQueDezDias){
+            throw new RuntimeException("O emprestimo não pode ser realizado pois o periodo de emprestimo é maior que 10 dias");
+        }
     }
-
-
-
 }

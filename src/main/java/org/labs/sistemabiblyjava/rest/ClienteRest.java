@@ -3,6 +3,7 @@ package org.labs.sistemabiblyjava.rest;
 import lombok.AllArgsConstructor;
 import org.labs.sistemabiblyjava.entities.Cliente;
 import org.labs.sistemabiblyjava.repository.ClienteRepository;
+import org.labs.sistemabiblyjava.service.CadastrarClienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import java.util.List;
 public class ClienteRest {
 
     private ClienteRepository repository;
+    private CadastrarClienteService cadastrarClienteService;
     
 
     @GetMapping
@@ -23,7 +25,7 @@ public class ClienteRest {
 
     @PostMapping
     public ResponseEntity<Cliente> insert(@RequestBody Cliente resource){
-        return ResponseEntity.ok(repository.save(resource));
+        return ResponseEntity.ok(cadastrarClienteService.exec(resource));
     }
 
     @GetMapping("/{id}")
