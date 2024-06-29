@@ -3,7 +3,8 @@ package org.labs.sistemabiblyjava.rest;
 import lombok.AllArgsConstructor;
 import org.labs.sistemabiblyjava.entities.Reserva;
 import org.labs.sistemabiblyjava.repository.ReservaRepository;
-import org.labs.sistemabiblyjava.service.CancelarEmprestimoService;
+import org.labs.sistemabiblyjava.service.CancelarReservaService;
+import org.labs.sistemabiblyjava.service.RealizarReservaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ReservaRest {
     private ReservaRepository repository;
-    private CancelarEmprestimoService cancelarEmprestimoService;
+    private CancelarReservaService cancelarReservaService;
+    private RealizarReservaService realizarReservaService;
 
 
     @GetMapping
@@ -24,7 +26,7 @@ public class ReservaRest {
 
     @PostMapping
     public ResponseEntity<Reserva> insert(@RequestBody Reserva resource){
-        return ResponseEntity.ok(repository.save(resource));
+        return ResponseEntity.ok(realizarReservaService.exec(resource));
     }
 
     @GetMapping("/{id}")
@@ -38,9 +40,9 @@ public class ReservaRest {
         return ResponseEntity.ok(repository.save(resource));
     }
 
-    @PutMapping("/cancelar-solicitacao/{id}")
+    @PutMapping("/cancelar-reserva/{id}")
     public ResponseEntity<Reserva> cancelarSolicitacao(@PathVariable Long id, @RequestBody Reserva resource){
-        return ResponseEntity.ok(cancelarEmprestimoService.exec(resource));
+        return ResponseEntity.ok(cancelarReservaService.exec(resource));
     }
 
     @DeleteMapping("/{id}")
