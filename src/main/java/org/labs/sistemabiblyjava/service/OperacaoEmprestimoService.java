@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -81,21 +83,31 @@ abstract class OperacaoEmprestimoService {
 
 
     public void validateReservaMaisAntiga(Emprestimo resource){
-        log.info("Verificando se o emprestimo {} do livro é para a pessoa cuja reserva é a mais antiga", resource.getCliente().getId());
-        AtomicReference<Optional<Reserva>> reservaOptional = new AtomicReference<>();
-        var clienteEmprestimoNotEqualClienteReservaMaisAntiga = resource.getLivro().stream().anyMatch(livro -> {
-            reservaOptional.set(reservaRepository
-                    .findAllByLivro_IdAndSituacaoReserva_Descricao(
-                            livro.getId(), "EM ESPERA")
-                    .stream()
-                    .min(Comparator.comparing(Reserva::getDataReserva)));
-            if(reservaOptional.get().isPresent()){
-                return reservaOptional.get().get().getCliente().getId() != resource.getCliente().getId();
+        log.info("Verificando se o emprestimo {} do livro não tem reservas", resource.getCliente().getId());
+        AtomicReference<List<Reserva>> reservaList = new AtomicReference<>();
+        var emprestimoRealizadoQuandoReservasExistem = resource.getLivro().stream().anyMatch(livro -> {
+            reservaList.set(reservaRepository
+                    .findAllByPrazoDevolucaoGreaterThanEqualAndDataEmprestimoEmIsLessThanEqualAndLivro_IdAndSituacaoReserva_Descricao(
+                            resource.getDtEmprestimoEm(),
+                            resource.getPrazoDevolucaoEm(),
+                            livro.getId(),
+                            "EM ESPERA"
+                    ));
+            if(!reservaList.get().isEmpty()){
+                return !Objects.equals(reservaList.get()
+                        .stream()
+                        .min(Comparator.comparing(Reserva::getDataReserva))
+                        .get().getCliente().getId(), resource.getCliente().getId())
+                        &&
+                        !reservaList.get().isEmpty()
+                        &&
+                        livroDisponiveisViewRepository.findById(livro.getId()).get().getQuantiaLivrosDisponiveis() == 1;
             }else{
                 return false;
             }
         });
-        if(clienteEmprestimoNotEqualClienteReservaMaisAntiga){
+
+        if(emprestimoRealizadoQuandoReservasExistem){
             throw new RuntimeException("O " +
                     "livro emprestado " +
                     "está reservado. Contate o ultimo cliente " +
@@ -103,8 +115,10 @@ abstract class OperacaoEmprestimoService {
                     "coloque a reserva para \"Não Atendida\""
             );
         }
-        if(reservaOptional.get().isPresent()){
-            atualizarSituacaoSolicitacao.quandoEmprestimoRealizado(reservaOptional.get());
+        if(!reservaList.get().isEmpty()){
+            atualizarSituacaoSolicitacao.quandoEmprestimoRealizado(reservaList.get()
+                    .stream()
+                    .min(Comparator.comparing(Reserva::getDataReserva)));
         }
     }
 
@@ -124,7 +138,6 @@ abstract class OperacaoEmprestimoService {
         if(clienteNaoExistente){
             throw new RuntimeException("Cliente não encontrado na base");
         }
-
     }
 
     public void validateQuantidadeDeDiasDoEmprestimo(Emprestimo resource){
